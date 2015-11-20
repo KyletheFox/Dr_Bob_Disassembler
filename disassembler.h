@@ -1,8 +1,3 @@
-#define MEMSIZE    1000       /* 1000 words of memory                 */
-#define WORDSIZE      4       /* each word is 4 digits                */
-#define WORDLIMIT  9999       /* change this if you change WORDSIZE   */
-#define MAXCNT     1000       /* limit execution to 1000 instructions */
-
 /* SIM1 operation codes (plus JMP) with format naaa where       */
 /* aaa is a 3-digit address and n is as follows:                */
 #define HALT       0          /* halt processor                 */

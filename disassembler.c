@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 
 void getInstruction(int acc, char *tempStr) {
 	char temp;
+	char temp2;
 
 	temp = acc/1000;
 
@@ -75,38 +76,73 @@ void getInstruction(int acc, char *tempStr) {
 			switch(temp) {
 				case SKIP:
 					temp%=10;
-					sprintf(tempStr, "SKIP r", temp);
+					sprintf(tempStr, "SKIP %%r%d", temp);
 					break;
-
 				case SKEQ:
 					temp%=10;
-					sprintf(tempStr, "SKEQ r", temp);
+					sprintf(tempStr, "SKEQ %%r%d", temp);
 					break;
 				case SKNE:
 					temp%=10;
-					sprintf(tempStr, "SKNE r", temp);
+					sprintf(tempStr, "SKNE %%r%d", temp);
 					break;
 				case SKGT:
 					temp%=10;
-					sprintf(tempStr, "SKGT r", temp);
+					sprintf(tempStr, "SKGT %%r%d", temp);
 					break;
 				case SKGE:
 					temp%=10;
-					sprintf(tempStr, "SKGE r", temp);
+					sprintf(tempStr, "SKGE %%r%d", temp);
 					break;
 				case SKLT:
 					temp%=10;
-					sprintf(tempStr, "SKLT r", temp);
+					sprintf(tempStr, "SKLT %%r%d", temp);
 					break;
 				case SKLE:
 					temp%=10;
-					sprintf(tempStr, "SKLE r", temp);
+					sprintf(tempStr, "SKLE %%r%d", temp);
 					break;		
 			}
-
 			break;
 		case ONEREG:
-			
+
+		temp = acc%1000;
+		temp /= 100;
+
+		switch(temp) {
+				case IN:
+					temp%=10;
+					sprintf(tempStr, "IN %%r%d", temp);
+					break;
+				case OUT:
+					temp%=10;
+					sprintf(tempStr, "OUT %%r%d", temp);
+					break;
+				case CLR:
+					temp%=10;
+					sprintf(tempStr, "CLR %%r%d", temp);
+					break;
+				case INC:
+					temp%=10;
+					sprintf(tempStr, "INC %%r%d", temp);
+					break;
+				case DEC:
+					temp%=10;
+					sprintf(tempStr, "DEC %%r%d", temp);
+					break;
+				case NEG:
+					temp%=10;
+					sprintf(tempStr, "NEG %%r%d", temp);
+					break;
+				case SHFTL:
+					temp%=10;
+					sprintf(tempStr, "SHFTL %%r%d", temp);
+					break;	
+				case SHFTR:
+					temp%=10;
+					sprintf(tempStr, "SHFTR %%r%d", temp);
+					break;			
+			}		
 			break;
 		case TWOREG:
 			
