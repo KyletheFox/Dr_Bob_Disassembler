@@ -1,2 +1,2 @@
 # op-code-generator
-Generating op codes from fictional assembly. Dr Sim4
+Create a disassembler that reads in fictious op codes from Dr Bob's SIM.
