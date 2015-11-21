@@ -3,12 +3,14 @@
 #include <string.h>
 #include "disassembler.h"
 
-void getInstruction(int);
+void getInstruction(int, char);
 char *getStrSpace(int);
 
 int main(int argc, char *argv[]) {
 	unsigned int ip;
 	unsigned int acc;
+	char start = 1;   // ignores first 0 ip
+	char noHalt = 1;  // flag to determine if HALT has been called
 	FILE *fp;
 
 	// Open File
@@ -17,11 +19,22 @@ int main(int argc, char *argv[]) {
       		exit(1);
     	}
 
-	do {
-		fscanf(fp, "%d %d", &ip, &acc);
-		printf("%3d %d ", ip, acc);
-		getInstruction(acc);
-	} while (!feof(fp));
+	while (!feof(fp)) {
+		fscanf(fp, "%3d %4d", &ip, &acc);
+
+		if (start || ip!=0) {
+			printf("%03d %04d ", ip, acc);
+			getInstruction(acc, noHalt);
+			start = 0;
+		}
+		else
+			printf("%03d\n", ip);
+
+		//Determine if HALT has already been called
+		if (acc == HALT) {
+			noHalt = 0;
+		}
+	} 
 
 	fclose(fp);
 
@@ -40,175 +53,149 @@ char *getStrSpace(int a) {
 		return temp;	
 }
 
-void getInstruction(int acc) {
-	char temp;
-	char temp2;
+void getInstruction(int acc, char noHalt) {
+	int first, sec, third, forth;
 	char *tempStr;
 
-	temp = acc/1000;
+	// Separate each number
+	first = acc/1000;
+	sec = (acc/100)%10;
+	third = (acc/10)%10;
+	forth = acc%10;
 
-	switch(temp) {
+	switch(first) {
 		case HALT:
-			temp = acc%1000;
-			tempStr = getStrSpace(4);
-			tempStr = "HALT";
+			if (noHalt) {
+				tempStr = getStrSpace(4);
+				tempStr = "HALT";
+			}
+			else {
+				tempStr = getStrSpace(5);
+				tempStr = ".word";
+			}
+			break;
 		case LD:
-			temp = acc%1000;
-			tempStr = getStrSpace(4);
-			sprintf(tempStr, "LD %d", temp);
+			tempStr = getStrSpace(5);
+			sprintf(tempStr, "LD %d%d", third, forth);
 			break;
 		case ST:
-			temp = acc%1000;
-			tempStr = getStrSpace(4);
-			sprintf(tempStr, "ST %d", temp);
+			tempStr = getStrSpace(5);
+			sprintf(tempStr, "ST %d%d", third, forth);
 			break;
 		case ADD:
-			temp = acc%1000;
-			tempStr = getStrSpace(5);
-			sprintf(tempStr, "ADD %d", temp);
+			tempStr = getStrSpace(6);
+			sprintf(tempStr, "ADD %d%d", third, forth);
 			break;
 		case SUB:
-			temp = acc%1000;
-			tempStr = getStrSpace(5);
-			sprintf(tempStr, "SUB %d", temp);
+			tempStr = getStrSpace(6);
+			sprintf(tempStr, "SUB %d%d", third, forth);
 			break;
 		case LDA:
-			temp = acc%1000;
-			tempStr = getStrSpace(5);
-			sprintf(tempStr, "LDA %d", temp);
+			tempStr = getStrSpace(6);
+			sprintf(tempStr, "LDA %d%d", third, forth);
 			break;
 		case JMP:
-			temp = acc%1000;
-			tempStr = getStrSpace(5);
-			sprintf(tempStr, "JMP %d", temp);
+			tempStr = getStrSpace(6);
+			sprintf(tempStr, "JMP %d%d", third, forth);
 			break;
 		case SKIPSET:
 
-			temp2 = acc%1000;
-			temp2 /= 100;
-			
-			switch(temp2) {
+			switch(sec) {
 				case SKIP:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKIP %%r%d", temp);
+					sprintf(tempStr, "SKIP %%r%d", forth);
 					break;
 				case SKEQ:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKEQ %%r%d", temp);
+					sprintf(tempStr, "SKEQ %%r%d", forth);
 					break;
 				case SKNE:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKNE %%r%d", temp);
+					sprintf(tempStr, "SKNE %%r%d", forth);
 					break;
 				case SKGT:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKGT %%r%d", temp);
+					sprintf(tempStr, "SKGT %%r%d", forth);
 					break;
 				case SKGE:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKGE %%r%d", temp);
+					sprintf(tempStr, "SKGE %%r%d", forth);
 					break;
 				case SKLT:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKLT %%r%d", temp);
+					sprintf(tempStr, "SKLT %%r%d", forth);
 					break;
 				case SKLE:
-					temp%=10;
 					tempStr = getStrSpace(8);
-					sprintf(tempStr, "SKLE %%r%d", temp);
+					sprintf(tempStr, "SKLE %%r%d", forth);
 					break;		
 			}
 			break;
 		case ONEREG:
 
-			temp2 = acc%1000;
-			temp2 /= 100;
-
-			switch(temp2) {
+			switch(sec) {
 					case IN:
-						temp%=10;
 						tempStr = getStrSpace(5);
-						sprintf(tempStr, "IN %%r%d", temp);
+						sprintf(tempStr, "IN %%r%d", forth);
 						break;
 					case OUT:
-						temp%=10;
 						tempStr = getStrSpace(6);
-						sprintf(tempStr, "OUT %%r%d", temp);
+						sprintf(tempStr, "OUT %%r%d", forth);
 						break;
 					case CLR:
-						temp%=10;
 						tempStr = getStrSpace(6);
-						sprintf(tempStr, "CLR %%r%d", temp);
+						sprintf(tempStr, "CLR %%r%d", forth);
 						break;
 					case INC:
-						temp%=10;
 						tempStr = getStrSpace(6);
-						sprintf(tempStr, "INC %%r%d", temp);
+						sprintf(tempStr, "INC %%r%d", forth);
 						break;
 					case DEC:
-						temp%=10;
 						tempStr = getStrSpace(6);
-						sprintf(tempStr, "DEC %%r%d", temp);
+						sprintf(tempStr, "DEC %%r%d", forth);
 						break;
 					case NEG:
-						temp%=10;
 						tempStr = getStrSpace(6);
-						sprintf(tempStr, "NEG %%r%d", temp);
+						sprintf(tempStr, "NEG %%r%d", forth);
 						break;
 					case SHFTL:
-						temp%=10;
 						tempStr = getStrSpace(9);
-						sprintf(tempStr, "SHFTL %%r%d", temp);
+						sprintf(tempStr, "SHFTL %%r%d", forth);
 						break;	
 					case SHFTR:
-						temp%=10;
 						tempStr = getStrSpace(9);
-						sprintf(tempStr, "SHFTR %%r%d", temp);
+						sprintf(tempStr, "SHFTR %%r%d", forth);
 						break;			
 				}		
 			break;
 
 		// Not correct. Need to get two regesitries. For Debug purposes only
 		case TWOREG:
-			temp2 = acc%1000;
-			temp2 /= 100;
 
-			switch(temp2) {
+			switch(sec) {
 					case MVRR:
-						temp%=10;
 						tempStr = getStrSpace(12);
-						sprintf(tempStr, "MVRR %%r%d", temp);
+						sprintf(tempStr, "MVRR %%r%d,%%r%d", third, forth);
 						break;
 					case MVMR:
-						temp%=10;
 						tempStr = getStrSpace(12);
-						sprintf(tempStr, "MVMR %%r%d", temp);
+						sprintf(tempStr, "MVMR %%r%d,%%r%d", third, forth);
 						break;
 					case MVRM:
-						temp%=10;
 						tempStr = getStrSpace(12);
-						sprintf(tempStr, "MVRM %%r%d", temp);
+						sprintf(tempStr, "MVRM %%r%d,%%r%d", third, forth);
 						break;
 					case EXCH:
-						temp%=10;
 						tempStr = getStrSpace(12);
-						sprintf(tempStr, "EXCH %%r%d", temp);
+						sprintf(tempStr, "EXCH %%r%d,%%r%d", third, forth);
 						break;
 					case ADDR:
-						temp%=10;
 						tempStr = getStrSpace(12);
-						sprintf(tempStr, "ADDR %%r%d", temp);
+						sprintf(tempStr, "ADDR %%r%d,%%r%d", third, forth);
 						break;
 					case SUBR:
-						temp%=10;
 						tempStr = getStrSpace(12);
-						sprintf(tempStr, "SUBR %%r%d", temp);
+						sprintf(tempStr, "SUBR %%r%d,%%r%d", third, forth);
 						break;
 			}
 			break;		
